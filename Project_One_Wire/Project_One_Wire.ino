@@ -1,5 +1,8 @@
 #include <OneWire.h>
 #include <EEPROM.h>
+#define ONEWIRE_CRC
+#define ONEWIRE_CRC8_TABLE  //This will use the 2x16 lookup table to calculate the CRC. This is much faster but comes at a memory cost
+
 OneWire ds(10);
 
 void setup() {
@@ -11,6 +14,7 @@ void loop() {
   byte j = 0;
   byte data[9];
   byte addr[8];
+  bool sensorConnected;
   byte type_s = 1;
   int const ARRAY_SIZE = 20;
   uint8_t addresses[ARRAY_SIZE][8];
@@ -22,7 +26,7 @@ void loop() {
 
   pinMode(13, INPUT);
 
-    if (firstLoop)  //reads data from eeprom on first start
+  if (firstLoop)  //reads data from eeprom on first start
   {
     SensorCount = EEPROM.read(200);
     Serial.println("first loop!");
@@ -67,15 +71,15 @@ void loop() {
     uint8_t k = 0;
     for (j = 0; j <= SensorCount; j++) {
       for (i = 0; i < 8; i++) {
-        EEPROM.update(k, addresses[j][i]); 
+        EEPROM.update(k, addresses[j][i]);
         k++;
       }
     }
 
-    EEPROM.update(200, SensorCount);//store the sensor count in location 200 of eeprom. note: change to location 0 later for maintainability
+    EEPROM.update(200, SensorCount);  //store the sensor count in location 200 of eeprom. note: change to location 0 later for maintainability
     Serial.println("All addresses stored");
     Serial.println();
-    while(digitalRead(13)){};//block until jumper is removed
+    while (digitalRead(13)) {};  //block until jumper is removed
   }
   //prepare sensors for a reading the temperature using temp convert command
   ds.reset();         // reset. depowers the bus
@@ -87,14 +91,28 @@ void loop() {
   //read the scatchpad and print out the temperature for each sensor in the address array
   for (j = 0; j <= SensorCount; j++) {
     ds.reset();
-    ds.select(addresses[j]);   //select device address
-    ds.write(0xBE, 0);         // Read scratchpad command
+    ds.select(addresses[j]);  //select device address
+    ds.write(0xBE, 0);        // Read scratchpad command
+
+
     for (i = 0; i < 9; i++) {  // we need 9 bytes
       data[i] = ds.read();
-      //Serial.print(data[i], HEX);
-      //Serial.print(" ");
+      // Serial.print(data[i], HEX);
+      // Serial.print(" ");
     }
 
+    uint8_t crc = ds.crc8(data, 8);  //calculate crc
+    if (crc == data[8]) {
+      Serial.print("\tCRC is valid. Device Connected");
+    } else {
+      Serial.print("\tCRC failed. Check Device Connection");
+    }
+      // Serial.print("\tcrc: ");
+      // Serial.print(crc, HEX);
+      // Serial.print("\t");
+
+
+    //code to allow different resolutions and sensors. currently defaults to type_s = 1
     int16_t raw = (data[1] << 8) | data[0];
     if (type_s) {
       raw = raw << 3;  // 9 bit resolution default
