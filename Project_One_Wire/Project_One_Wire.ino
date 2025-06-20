@@ -1,3 +1,16 @@
+/*
+Pero Schwitalla 20/06/2025
+
+Programm interfaces with the DS18S20 1-wire thermometer.
+
+On startup all addresses stored in EEPROM will be restored. EEPROM[200] stores the sensor count.
+If the jumper on pin 13 is closed an address search will be started and overwrite all current addresses in memory and eeprom.
+CRC validation is implement on the addresses search and when reading the scratchpad to detect bad data and sensor disconnects.
+A soft limit of 20 sensors is implemented.
+
+*/
+
+
 #include <OneWire.h>
 #include <EEPROM.h>
 #define ONEWIRE_CRC
@@ -87,7 +100,7 @@ void loop() {
       }
     }
 
-    EEPROM.update(200, SensorCount);  //store the sensor count in location 200 of eeprom. note: change to location 0 later for maintainability
+    EEPROM.update(200, SensorCount);  //store the sensor count in location 200 of eeprom.
     Serial.println("\nAll addresses stored");
     Serial.println();
     while (digitalRead(13)) {};  //block until jumper is removed
