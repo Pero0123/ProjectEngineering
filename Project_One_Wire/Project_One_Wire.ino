@@ -36,6 +36,8 @@ void loop() {
         k++;
       }
     }
+    Serial.println("Addresses Restored from EEPROM");
+    addressesConfigured = 1; //on first loop, the addresses stored in eeprom will be copied into working memory unless the address search is ran
   }
 
 
@@ -89,7 +91,6 @@ void loop() {
     Serial.println("\nAll addresses stored");
     Serial.println();
     while (digitalRead(13)) {};  //block until jumper is removed
-  addressesConfigured = 1; //on first loop, the addresses stored in eeprom will be copied into working memory unless the address search is ran
   }
 
 
