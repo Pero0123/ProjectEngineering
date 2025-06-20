@@ -20,16 +20,15 @@ void loop() {
   uint8_t addresses[ARRAY_SIZE][8];
   static uint8_t SensorCount = 0;
   float celsius;
-  static uint8_t firstLoop = 1;
+  static uint8_t addressesConfigured = 0;
 
 
 
   pinMode(13, INPUT);
 
-  if (firstLoop)  //reads data from eeprom on first start
+  if (!addressesConfigured && !digitalRead(13))  //reads data from eeprom on first start
   {
     SensorCount = EEPROM.read(200);
-    Serial.println("first loop!");
     uint8_t k = 0;
     for (j = 0; j <= (SensorCount); j++) {
       for (i = 0; i < 8; i++) {
@@ -39,6 +38,7 @@ void loop() {
     }
   }
 
+
   if (digitalRead(13)) {
     Serial.println("Address Search Mode Selected");
     ds.reset_search();  // Reset the search state
@@ -47,16 +47,20 @@ void loop() {
       for (i = 0; i < 8; i++) {
         addresses[j][i] = addr[i];  //store the address stored by search in a 2 dimensional array
       }
-      SensorCount = j;
-      j++;
-      if (j >= ARRAY_SIZE) {
-        Serial.print("Maximum number of addresses reached");  //limit number of devices to array size
-        break;                                                // Limit to ARRAY_SIZE addresses
+      Serial.println();
+      uint8_t addressCRC = ds.crc8(addresses[j], 8);
+      if (addressCRC = addresses[j][7]) {
+        Serial.print("\t CRC valid \t");
+      } else {
+        Serial.print("\t CRC not valid. Restarting search \t");
+        break;
       }
-    }
 
+      Serial.print("address CRC: ");
+      Serial.print(addressCRC, HEX);
+      Serial.print("\t");
 
-    for (j = 0; j <= SensorCount; j++) {
+      //print out the address
       for (i = 0; i < 8; i++) {
         if (addresses[j][i] < 0x10) {
           Serial.print("0");  // Add leading zero for single digit hex values
@@ -64,7 +68,12 @@ void loop() {
         Serial.print(addresses[j][i], HEX);
         Serial.print(" ");
       }
-      Serial.println();
+      SensorCount = j;
+      j++;
+      if (j >= ARRAY_SIZE) {
+        Serial.println("Maximum number of addresses reached");  //limit number of devices to array size
+        break;                                                // Limit to ARRAY_SIZE addresses
+      }
     }
 
     //Write data to eeprom for persistant storage
@@ -77,10 +86,13 @@ void loop() {
     }
 
     EEPROM.update(200, SensorCount);  //store the sensor count in location 200 of eeprom. note: change to location 0 later for maintainability
-    Serial.println("All addresses stored");
+    Serial.println("\nAll addresses stored");
     Serial.println();
     while (digitalRead(13)) {};  //block until jumper is removed
+  addressesConfigured = 1; //on first loop, the addresses stored in eeprom will be copied into working memory unless the address search is ran
   }
+
+
   //prepare sensors for a reading the temperature using temp convert command
   ds.reset();         // reset. depowers the bus
   ds.write(0xCC, 0);  //Issue the skip rom command to address all devices on the bus
@@ -103,13 +115,13 @@ void loop() {
 
     uint8_t crc = ds.crc8(data, 8);  //calculate crc
     if (crc == data[8]) {
-      Serial.print("\tCRC is valid. Device Connected");
+      Serial.print("\tCRC is valid. Device is Connected\t");
     } else {
-      Serial.print("\tCRC failed. Check Device Connection");
+      Serial.print("\tCRC failed. Check Device Connection\t");
     }
-      // Serial.print("\tcrc: ");
-      // Serial.print(crc, HEX);
-      // Serial.print("\t");
+    // Serial.print("\tcrc: ");
+    // Serial.print(crc, HEX);
+    // Serial.print("\t");
 
 
     //code to allow different resolutions and sensors. currently defaults to type_s = 1
@@ -137,5 +149,4 @@ void loop() {
     Serial.println();
   }
   Serial.println();
-  firstLoop = 0;
 }
