@@ -129,9 +129,9 @@ void loop() {
 
     uint8_t crc = ds.crc8(data, 8);  //calculate crc
     if (crc == data[8]) {
-      Serial.print("\tCRC is valid. Device is Connected\t");
+      //Serial.print("\tCRC is valid. Device is Connected\t");
     } else {
-      Serial.print("\tCRC failed. Check Device Connection\t");
+      //Serial.print("\tCRC failed. Check Device Connection\t");
     }
     // Serial.print("\tcrc: ");
     // Serial.print(crc, HEX);
@@ -155,12 +155,21 @@ void loop() {
       //// default is 12 bit resolution, 750 ms conversion time
     }
     celsius = (float)raw / 16.0;
+    /*
     Serial.print("Sensor: ");
     Serial.print(j + 1);
     Serial.print("  Temperature = ");
+    */
+    //Serial.println((int)celsius);
+    Serial.print("Sensor 1:");
     Serial.print(celsius);
+    Serial.print("H\r");
+    //Serial.print("Sensor 2:20.011\r");
+    //Serial.print("Sensor 3:0.011\r");
+    /*
     Serial.print(" Celsius, ");
     Serial.println();
+    */
   }
-  Serial.println();
+  //Serial.println();
 }
