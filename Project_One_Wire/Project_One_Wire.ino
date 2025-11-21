@@ -13,8 +13,8 @@ A soft limit of 20 sensors is implemented.
 
 #include <OneWire.h>
 #include <EEPROM.h>
-#define ONEWIRE_CRC
-#define ONEWIRE_CRC8_TABLE  //This will use the 2x16 lookup table to calculate the CRC. This is much faster but comes at a memory cost
+//#define ONEWIRE_CRC
+//#define ONEWIRE_CRC8_TABLE  //This will use the 2x16 lookup table to calculate the CRC. This is much faster but comes at a memory cost
 
 OneWire ds(10);
 
