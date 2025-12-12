@@ -24,11 +24,11 @@ void setup() {
 
 void loop() {
   byte i;
-  byte j = 0;
+  int j = 0;
   byte data[9];
   byte addr[8];
   bool sensorConnected;
-  byte type_s = 1;
+  byte type_s = 0;
   int const ARRAY_SIZE = 20;
   uint8_t addresses[ARRAY_SIZE][8];
   static uint8_t SensorCount = 0;
@@ -161,7 +161,9 @@ void loop() {
     Serial.print("  Temperature = ");
     */
     //Serial.println((int)celsius);
-    Serial.print("Sensor 1:");
+    Serial.print("Sensor ");
+    Serial.print(j+1);
+    Serial.print(":");
     Serial.print(celsius);
     Serial.print("H\r");
     //Serial.print("Sensor 2:20.011\r");
