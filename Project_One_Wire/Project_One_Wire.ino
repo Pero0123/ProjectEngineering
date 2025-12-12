@@ -13,8 +13,8 @@ A soft limit of 20 sensors is implemented.
 
 #include <OneWire.h>
 #include <EEPROM.h>
-#define ONEWIRE_CRC
-#define ONEWIRE_CRC8_TABLE  //This will use the 2x16 lookup table to calculate the CRC. This is much faster but comes at a memory cost
+//#define ONEWIRE_CRC
+//#define ONEWIRE_CRC8_TABLE  //This will use the 2x16 lookup table to calculate the CRC. This is much faster but comes at a memory cost
 
 OneWire ds(10);
 
@@ -24,11 +24,11 @@ void setup() {
 
 void loop() {
   byte i;
-  byte j = 0;
+  int j = 0;
   byte data[9];
   byte addr[8];
   bool sensorConnected;
-  byte type_s = 1;
+  byte type_s = 0;
   int const ARRAY_SIZE = 20;
   uint8_t addresses[ARRAY_SIZE][8];
   static uint8_t SensorCount = 0;
@@ -129,9 +129,9 @@ void loop() {
 
     uint8_t crc = ds.crc8(data, 8);  //calculate crc
     if (crc == data[8]) {
-      Serial.print("\tCRC is valid. Device is Connected\t");
+      //Serial.print("\tCRC is valid. Device is Connected\t");
     } else {
-      Serial.print("\tCRC failed. Check Device Connection\t");
+      //Serial.print("\tCRC failed. Check Device Connection\t");
     }
     // Serial.print("\tcrc: ");
     // Serial.print(crc, HEX);
@@ -155,12 +155,23 @@ void loop() {
       //// default is 12 bit resolution, 750 ms conversion time
     }
     celsius = (float)raw / 16.0;
+    /*
     Serial.print("Sensor: ");
     Serial.print(j + 1);
     Serial.print("  Temperature = ");
+    */
+    //Serial.println((int)celsius);
+    Serial.print("Sensor ");
+    Serial.print(j+1);
+    Serial.print(":");
     Serial.print(celsius);
+    Serial.print("H\r");
+    //Serial.print("Sensor 2:20.011\r");
+    //Serial.print("Sensor 3:0.011\r");
+    /*
     Serial.print(" Celsius, ");
     Serial.println();
+    */
   }
-  Serial.println();
+  //Serial.println();
 }
