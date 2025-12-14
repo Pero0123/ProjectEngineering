@@ -16,7 +16,7 @@ A soft limit of 20 sensors is implemented.
 //#define ONEWIRE_CRC
 //#define ONEWIRE_CRC8_TABLE  //This will use the 2x16 lookup table to calculate the CRC. This is much faster but comes at a memory cost
 
-OneWire ds(10);
+OneWire ds(3);
 
 void setup() {
   Serial.begin(9600);
@@ -36,10 +36,9 @@ void loop() {
   static uint8_t addressesConfigured = 0;
 
 
+  pinMode(5, INPUT);
 
-  pinMode(13, INPUT);
-
-  if (!addressesConfigured && !digitalRead(13))  //reads data from eeprom on first start
+  if (!addressesConfigured && !digitalRead(5))  //reads data from eeprom on first start
   {
     SensorCount = EEPROM.read(200);
     uint8_t k = 0;
@@ -54,7 +53,7 @@ void loop() {
   }
 
 
-  if (digitalRead(13)) {
+  if (digitalRead(5)) {
     Serial.println("Address Search Mode Selected");
     ds.reset_search();  // Reset the search state
 
